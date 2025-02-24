@@ -738,4 +738,6 @@ async function init() {
 }
 
 // Sayfa yüklendiğinde init fonksiyonunu çağır
-window.addEventListener('load', init);
+window.addEventListener('load', () => {
+// Metamask bağlantı kontrolleri
+});
