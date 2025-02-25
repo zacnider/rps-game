@@ -1,9 +1,23 @@
+// Ethers'ın yüklendiğini kontrol eden kod
+if (typeof ethers === 'undefined') {
+    console.error('Ethers.js yüklenemedi!');
+} else {
+    console.log('Ethers.js başarıyla yüklendi');
+}
+
+
 let contract;
 let signer;
 let provider;
 
 async function connectWallet() {
-     // Metamask varlığını kontrol et
+     // Ethers'ın varlığını bir kez daha kontrol et
+    if (typeof ethers === 'undefined') {
+        console.error('Ethers tanımsız!');
+        return;
+    }
+
+    // Metamask varlığını kontrol et
     if (typeof window.ethereum !== 'undefined') {
         try {
             // Metamask bağlantı isteği
@@ -18,6 +32,8 @@ async function connectWallet() {
             signer = provider.getSigner();
 
             // Sözleşme bağlantısı
+            const contractAddress = "SIZIN_CONTRACT_ADRESI";
+            const contractABI = [ /* Sözleşmenizin ABI'si */ ];
             contract = new ethers.Contract(contractAddress, contractABI, signer);
 
             // Bağlı hesabı göster
@@ -25,8 +41,10 @@ async function connectWallet() {
             console.log("Bağlanan Hesap:", address);
 
             // Kullanıcı arayüzünü güncelle
-            document.getElementById('connectButton').textContent = 
-                `Bağlandı: ${address.slice(0,6)}...${address.slice(-4)}`;
+            const connectButton = document.getElementById('connectButton');
+            if (connectButton) {
+                connectButton.textContent = `Bağlandı: ${address.slice(0,6)}...${address.slice(-4)}`;
+            }
 
         } catch (error) {
             console.error("Bağlantı Hatası:", error);
