@@ -679,33 +679,85 @@ async function startGame() {
     }
 }
 
-async function playGame(move) {
+async function updateGameStats(win, loss) {
     try {
-        // Oyun oynama işlemi
-        // move: 0 (Rock), 1 (Paper), 2 (Scissors)
-        const tx = await contract.playGame(move);
-        const result = await tx.wait();
-        
-        // Oyun sonucunu gösterme
-        displayGameResult(result);
-        
-        // İstatistikleri güncelle
-        await updateGameStats();
+        // Oyunun sonucuna göre sözleşmedeki istatistikleri güncelle
+        const tx = await contract.updateStats(win, loss);
+        await tx.wait();
+
+        // Güncel kullanıcı verilerini çek
+        await checkUserData();
+
+        // Kullanıcının mevcut istatistiklerini göster
+        console.log("Toplam Puan:", userData[1]);
+        console.log("Kazanma Sayısı:", userData[2]);
+        console.log("Kaybetme Sayısı:", userData[3]);
+        console.log("Beraberlik Sayısı:", userData[4]);
+
     } catch (error) {
-        console.error('Oyun Oynama Hatası:', error);
-        alert('Oyun oynanırken bir hata oluştu');
+        console.error("İstatistik güncelleme hatası:", error);
     }
 }
 
-async function updateStats(win, loss) {
-    try {
-        const tx = await contract.updateStats(win, loss);
-        await tx.wait();
-        console.log("İstatistikler güncellendi");
-    } catch (error) {
-        console.error("İstatistikler güncellenemedi:", error);
+// Örnek kullanım senaryoları
+function handleGameResult(result) {
+    switch(result) {
+        case 'win':
+            updateGameStats(true, false);  // Kazanma durumu
+            break;
+        case 'loss':
+            updateGameStats(false, true);  // Kaybetme durumu
+            break;
+        case 'draw':
+            updateGameStats(false, false);  // Beraberlik durumu
+            break;
     }
 }
+
+// Oyun oynama fonksiyonu örneği
+async function playGame(playerChoice) {
+    // Kullanıcı adı kontrolü
+    if (!userData || userData[0] === "") {
+        alert("Oyuna başlamadan önce kullanıcı adı belirlemelisiniz!");
+        return;
+    }
+
+    // Token bakiye kontrolü
+    const balance = await contract.balanceOf(await signer.getAddress());
+    if (balance.eq(0)) {
+        alert("Oyun oynayabilmek için önce faucet'ten token almalısınız!");
+        return;
+    }
+
+    // Oyun mantığı burada frontend tarafında yazılacak
+    // Örnek basit bir senaryo
+    const choices = ['rock', 'paper', 'scissors'];
+    const computerChoice = choices[Math.floor(Math.random() * choices.length)];
+
+    let result;
+    if (playerChoice === computerChoice) {
+        result = 'draw';
+    } else if (
+        (playerChoice === 'rock' && computerChoice === 'scissors') ||
+        (playerChoice === 'paper' && computerChoice === 'rock') ||
+        (playerChoice === 'scissors' && computerChoice === 'paper')
+    ) {
+        result = 'win';
+    } else {
+        result = 'loss';
+    }
+
+    // Sonucu göster
+    alert(`Bilgisayar seçimi: ${computerChoice}, Sonuç: ${result}`);
+
+    // İstatistikleri güncelle
+    handleGameResult(result);
+}
+
+// Buton event listener'ları
+document.getElementById('rockButton').addEventListener('click', () => playGame('rock'));
+document.getElementById('paperButton').addEventListener('click', () => playGame('paper'));
+document.getElementById('scissorsButton').addEventListener('click', () => playGame('scissors'));
 
 
 function displayGameResult(result) {
