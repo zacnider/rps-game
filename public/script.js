@@ -789,3 +789,5 @@ window.addEventListener("load", () => {
   setupEventListeners();
   if (window.ethereum?.isConnected()) initializeConnection();
 });
+// script.js (en alta ekle)
+document.getElementById("connectButton").addEventListener("click", initializeConnection);
