@@ -594,17 +594,13 @@ async function connectWallet() {
     }
 }
 
-async function updateBalances() {
+async function checkBalance() {
     try {
-        // MON ve RPS token bakiyelerini çekme
-        // Bu kısım kontratınıza göre değişecek
-        const monBalance = await getMonBalance();
-        const rpsBalance = await getRPSBalance();
-        
-        document.getElementById('mon-balance').textContent = monBalance;
-        document.getElementById('rps-balance').textContent = rpsBalance;
+        const balance = await contract.balanceOf(signer.getAddress());
+        console.log("Token Bakiyesi:", ethers.utils.formatUnits(balance, await contract.decimals()));
+        return balance;
     } catch (error) {
-        console.error('Bakiye Güncelleme Hatası:', error);
+        console.error("Bakiye alınamadı:", error);
     }
 }
 
@@ -640,6 +636,16 @@ async function setUsername() {
     }
 }
 
+async function getUserData() {
+    try {
+        const userData = await contract.getUserData();
+        console.log("Kullanıcı Verileri:", userData);
+        return userData;
+    } catch (error) {
+        console.error("Kullanıcı verisi alınamadı:", error);
+    }
+}
+
 async function startGame() {
     try {
         // Oyun başlatma işlemi
@@ -671,20 +677,16 @@ async function playGame(move) {
     }
 }
 
-async function updateGameStats() {
+async function updateStats(win, loss) {
     try {
-        // İstatistikleri çekme
-        const wins = await contract.getTotalWins();
-        const losses = await contract.getTotalLosses();
-        const draws = await contract.getTotalDraws();
-        
-        document.getElementById('totalWins').textContent = wins;
-        document.getElementById('totalLosses').textContent = losses;
-        document.getElementById('totalDraws').textContent = draws;
+        const tx = await contract.updateStats(win, loss);
+        await tx.wait();
+        console.log("İstatistikler güncellendi");
     } catch (error) {
-        console.error('İstatistik Güncelleme Hatası:', error);
+        console.error("İstatistikler güncellenemedi:", error);
     }
 }
+
 
 function displayGameResult(result) {
     const resultElement = document.getElementById('gameResult');
