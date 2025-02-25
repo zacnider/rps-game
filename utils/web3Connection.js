@@ -549,7 +549,7 @@ const contractABI = [
 ];
 
 const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS || 'DEPLOYED_CONTRACT_ADDRESS';
-const RPC_URL = process.env.RPC_URL || 'https://sepolia.infura.io/v3/YOUR_PROJECT_ID';
+const RPC_URL = process.env.RPC_URL || 'https://testnet-rpc.monad.xyz';
 const PRIVATE_KEY = process.env.PRIVATE_KEY;
 
 async function initWeb3Connection() {
