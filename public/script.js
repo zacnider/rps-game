@@ -4,28 +4,12 @@ if (typeof ethers === 'undefined') {
     console.log('Ethers.js başarıyla yüklendi');
 }
 
-let contract;
-let signer;
-let provider;
-let userData = null;
-
-async function connectWallet() {
-    if (typeof ethers === 'undefined') {
-        console.error('Ethers tanımsız!');
-        return;
-    }
-
-    if (typeof window.ethereum !== 'undefined') {
-        try {
-            const accounts = await window.ethereum.request({ 
-                method: 'eth_requestAccounts' 
-            });
-
-            provider = new ethers.providers.Web3Provider(window.ethereum);
-            signer = provider.getSigner();
-
-            const contractAddress = "0x3facee0149bc01685815b3f62b8dbc68fbb0e835";
-            const contractABI = [{
+// Web3 Bağlantı Sabitleri
+const CONTRACT_ADDRESS = '0x3FACEE0149bC01685815B3f62b8DBC68FbB0E835';
+const CONTRACT_ABI = [
+    // Kontrat ABI'sini buraya ekleyin
+ 
+{
 		"inputs": [
 			{
 				"internalType": "address",
@@ -561,251 +545,186 @@ async function connectWallet() {
 				"name": "lastFaucetClaim",
 				"type": "uint256"
 			}
-		],
-		"stateMutability": "view",
-		"type": "function"
-	}];
-            contract = new ethers.Contract(contractAddress, contractABI, signer);
+];
 
-            const address = await signer.getAddress();
-            console.log("Bağlanan Hesap:", address);
+// Global Değişkenler
+let contract;
+let signer;
+let provider;
+let userData;
 
-            const connectButton = document.getElementById('connectButton');
-            if (connectButton) {
-                connectButton.textContent = `Bağlandı: ${address.slice(0,6)}...${address.slice(-4)}`;
-            }
-
-            // Kullanıcı verilerini çek
-            await getUserData();
-            await checkBalance();
-            await loadLeaderboard();
-
-        } catch (error) {
-            console.error("Bağlantı Hatası:", error);
-            alert("Metamask bağlantısı kurulamadı!");
-        }
-    } else {
-        alert("Metamask kurulu değil!");
-    }
-}
-
-async function checkBalance() {
+// Wallet Bağlantı Fonksiyonu
+async function connectWallet() {
     try {
-        const balance = await contract.balanceOf(await signer.getAddress());
-        const decimals = await contract.decimals();
-        const formattedBalance = ethers.utils.formatUnits(balance, decimals);
-        
-        const balanceElement = document.getElementById('tokenBalance');
-        if (balanceElement) {
-            balanceElement.textContent = `Token Bakiyesi: ${formattedBalance}`;
-        }
-        
-        return balance;
-    } catch (error) {
-        console.error("Bakiye alınamadı:", error);
-    }
-}
-
-async function getTokensFromFaucet() {
-    try {
-        // Son faucet çekim zamanını kontrol et
-        if (!userData) {
-            alert("Önce cüzdanı bağlayın!");
+        if (typeof window.ethereum === 'undefined') {
+            alert('Metamask kurulu değil!');
             return;
         }
 
-        const lastFaucetClaim = userData[5]; // lastFaucetClaim
-        const faucetCooldown = await contract.FAUCET_COOLDOWN();
-        const currentTime = Math.floor(Date.now() / 1000);
+        const accounts = await window.ethereum.request({ 
+            method: 'eth_requestAccounts' 
+        });
 
-        if (currentTime - lastFaucetClaim < faucetCooldown) {
-            const remainingTime = faucetCooldown - (currentTime - lastFaucetClaim);
-            const hours = Math.floor(remainingTime / 3600);
-            const minutes = Math.floor((remainingTime % 3600) / 60);
-            
-            alert(`Faucet'i tekrar kullanabilmek için ${hours} saat ${minutes} dakika beklemeniz gerekiyor.`);
-            return;
-        }
-
-        const tx = await contract.faucet();
-        await tx.wait();
+        provider = new ethers.providers.Web3Provider(window.ethereum);
+        signer = provider.getSigner();
         
-        console.log("Token alındı");
-        await checkBalance();
-        await getUserData();
+        contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+
+        const address = await signer.getAddress();
+        updateWalletUI(address);
+        
+        // UI Elemanlarını Göster
+        document.getElementById('usernameSection').classList.remove('hidden');
+        
+        await loadUserData();
+        await updateBalances();
+        await loadLeaderboard();
+
     } catch (error) {
-        console.error("Faucet hatası:", error);
+        console.error("Bağlantı Hatası:", error);
+        alert("Bağlantı sırasında bir hata oluştu!");
     }
 }
 
+// Wallet UI Güncelleme
+function updateWalletUI(address) {
+    const connectButton = document.getElementById('connectButton');
+    const walletInfo = document.getElementById('walletInfo');
+
+    connectButton.textContent = `Bağlandı: ${address.slice(0,6)}...${address.slice(-4)}`;
+    walletInfo.classList.remove('hidden');
+    document.getElementById('walletAddress').textContent = address;
+}
+
+// Kullanıcı Adı Ayarlama
 async function setUsername() {
+    const usernameInput = document.getElementById('usernameInput');
+    const username = usernameInput.value.trim();
+    
+    if (!username) {
+        alert('Kullanıcı adı boş olamaz');
+        return;
+    }
+    
     try {
-        const usernameInput = document.getElementById('usernameInput');
-        const username = usernameInput.value.trim();
-        
-        if (!username) {
-            alert('Kullanıcı adı boş olamaz');
-            return;
-        }
-
         const tx = await contract.setUsername(username);
         await tx.wait();
+        alert('Kullanıcı adı başarıyla ayarlandı!');
         
-        alert('Kullanıcı adı ayarlandı!');
-        await getUserData();
+        // Oyun bölümünü göster
+        document.getElementById('gameSection').classList.remove('hidden');
+        
+        await loadUserData();
     } catch (error) {
         console.error('Kullanıcı Adı Hatası:', error);
         alert('Kullanıcı adı ayarlanamadı');
     }
 }
 
-async function getUserData() {
-    try {
-        userData = await contract.getUserData();
-        console.log("Kullanıcı Verileri:", userData);
-
-        // Kullanıcı bilgilerini arayüzde göster
-        const usernameElement = document.getElementById('username');
-        const scoreElement = document.getElementById('userScore');
-        const winsElement = document.getElementById('userWins');
-        const lossesElement = document.getElementById('userLosses');
-
-        if (usernameElement) usernameElement.textContent = `Kullanıcı Adı: ${userData[0]}`;
-        if (scoreElement) scoreElement.textContent = `Toplam Puan: ${userData[1]}`;
-        if (winsElement) winsElement.textContent = `Kazanmalar: ${userData[2]}`;
-        if (lossesElement) lossesElement.textContent = `Kayıplar: ${userData[3]}`;
-
-        return userData;
-    } catch (error) {
-        console.error("Kullanıcı verisi alınamadı:", error);
-    }
-}
-
+// Oyun Oynama Fonksiyonu
 async function playGame(playerChoice) {
-    if (!userData || userData[0] === "") {
-        alert("Oyuna başlamadan önce kullanıcı adı belirlemelisiniz!");
-        return;
-    }
-
-    const balance = await contract.balanceOf(await signer.getAddress());
-    if (balance.eq(0)) {
-        alert("Oyun oynayabilmek için önce faucet'ten token almalısınız!");
-        return;
-    }
-
-    const choices = ['rock', 'paper', 'scissors'];
-    const computerChoice = choices[Math.floor(Math.random() * choices.length)];
-
-    let result;
-    if (playerChoice === computerChoice) {
-        result = 'draw';
-    } else if (
-        (playerChoice === 'rock' && computerChoice === 'scissors') ||
-        (playerChoice === 'paper' && computerChoice === 'rock') ||
-        (playerChoice === 'scissors' && computerChoice === 'paper')
-    ) {
-        result = 'win';
-    } else {
-        result = 'loss';
-    }
-
-    // Oyun sonucunu ekranda göster
-    displayGameResult(result);
-
-    // İstatistikleri güncelle
-    await updateGameStats(result);
-}
-
-async function updateGameStats(result) {
     try {
-        let win = false, loss = false;
-        
-        switch(result) {
-            case 'win':
-                win = true;
-                break;
-            case 'loss':
-                loss = true;
-                break;
+        // Token bakiye kontrolü
+        const balance = await contract.balanceOf(await signer.getAddress());
+        if (balance.eq(0)) {
+            alert("Oyun oynayabilmek için token almalısınız!");
+            return;
         }
 
-        const tx = await contract.updateStats(win, loss);
-        await tx.wait();
+        const tx = await contract.playRockPaperScissors(playerChoice);
+        const receipt = await tx.wait();
+        
+        // Sonuç işleme (kontrata göre düzenleyin)
+        const result = receipt.events[0].args.result;
+        displayGameResult(result);
+        
+        await updateBalances();
+        await loadUserData();
+        await loadLeaderboard();
 
-        // Güncel kullanıcı verilerini çek
-        await getUserData();
     } catch (error) {
-        console.error("İstatistik güncelleme hatası:", error);
+        console.error("Oyun hatası:", error);
+        alert("Oyun oynanırken bir hata oluştu!");
     }
 }
 
-function displayGameResult(result) {
-    const resultElement = document.getElementById('gameResult');
-    
-    switch(result) {
-        case 'win':
-            resultElement.textContent = '🏆 Kazandınız!';
-            resultElement.style.color = 'green';
-            break;
-        case 'loss':
-            resultElement.textContent = '😞 Kaybettiniz!';
-            resultElement.style.color = 'red';
-            break;
-        case 'draw':
-            resultElement.textContent = '🤝 Berabere!';
-            resultElement.style.color = 'yellow';
-            break;
+// Token Faucet Fonksiyonu
+async function getTokensFromFaucet() {
+    try {
+        const tx = await contract.faucet();
+        await tx.wait();
+        alert('Tokenler başarıyla alındı!');
+        await updateBalances();
+    } catch (error) {
+        console.error("Faucet hatası:", error);
+        alert(error.message);
     }
 }
 
+// Kullanıcı Verilerini Yükleme
+async function loadUserData() {
+    try {
+        userData = await contract.getUserData();
+        document.getElementById('totalWins').textContent = userData.wins || 0;
+        document.getElementById('totalLosses').textContent = userData.losses || 0;
+        document.getElementById('totalDraws').textContent = userData.draws || 0;
+    } catch (error) {
+        console.error("Kullanıcı verileri yüklenemedi:", error);
+    }
+}
+
+// Bakiyeleri Güncelleme
+async function updateBalances() {
+    try {
+        const monBalance = await contract.getMonBalance();
+        const rpsBalance = await contract.getRpsBalance();
+
+        document.getElementById('mon-balance').textContent = ethers.utils.formatUnits(monBalance, 18);
+        document.getElementById('rps-balance').textContent = ethers.utils.formatUnits(rpsBalance, 18);
+    } catch (error) {
+        console.error("Bakiye güncellenemedi:", error);
+    }
+}
+
+// Liderlik Tablosu Yükleme
 async function loadLeaderboard() {
     try {
         const leaderboard = await contract.getLeaderboard();
         const leaderboardList = document.getElementById('leaderboardList');
         
-        if (leaderboardList) {
-            leaderboardList.innerHTML = '';
-            
-            leaderboard.forEach((entry, index) => {
-                const leaderboardItem = document.createElement('div');
-                leaderboardItem.classList.add('bg-white/5', 'p-3', 'rounded-lg', 'flex', 'justify-between');
-                leaderboardItem.innerHTML = `
-                    <span>${index + 1}. ${entry.username}</span>
-                    <span>${entry.score} puan</span>
-                `;
-                leaderboardList.appendChild(leaderboardItem);
-            });
-        }
+        leaderboardList.innerHTML = leaderboard.map((entry, index) => `
+            <div class="bg-gray-700 rounded-lg p-4 flex justify-between items-center">
+                <div class="flex items-center space-x-4">
+                    <span class="font-bold text-lg">${index + 1}</span>
+                    <span>${entry.username}</span>
+                </div>
+                <span class="text-yellow-400 font-semibold">${entry.score} puan</span>
+            </div>
+        `).join('');
     } catch (error) {
-        console.error('Liderlik Tablosu Yükleme Hatası:', error);
+        console.error('Liderlik Tablosu Hatası:', error);
     }
 }
 
-// Event Listener'ları ayarla
-function setupEventListeners() {
-    document.getElementById('connectButton')?.addEventListener('click', connectWallet);
-    document.getElementById('faucetButton')?.addEventListener('click', getTokensFromFaucet);
-    document.getElementById('setUsernameButton')?.addEventListener('click', setUsername);
+// Sonuç Gösterimi
+function displayGameResult(result) {
+    const resultElement = document.getElementById('gameResult');
+    const resultMessages = {
+        0: { text: '🏆 Kazandınız!', color: 'text-green-500' },
+        1: { text: '😞 Kaybettiniz!', color: 'text-red-500' },
+        2: { text: '🤝 Berabere!', color: 'text-yellow-500' }
+    };
 
-    document.getElementById('rockButton')?.addEventListener('click', () => playGame('rock'));
-    document.getElementById('paperButton')?.addEventListener('click', () => playGame('paper'));
-    document.getElementById('scissorsButton')?.addEventListener('click', () => playGame('scissors'));
-}
-
-// Sayfa yüklendiğinde çalışacak init fonksiyonu
-function init() {
-    setupEventListeners();
-    
-    // Metamask hesap ve zincir değişikliği event'leri
-    if (typeof window.ethereum !== 'undefined') {
-        window.ethereum.on('chainChanged', () => window.location.reload());
-        window.ethereum.on('accountsChanged', (accounts) => {
-            if (accounts.length > 0) {
-                connectWallet();
-            }
-        });
+    const messageData = resultMessages[result];
+    if (messageData) {
+        resultElement.textContent = messageData.text;
+        resultElement.className = `text-2xl font-bold text-center ${messageData.color}`;
+    } else {
+        console.error('Geçersiz oyun sonucu:', result);
     }
 }
 
-// Sayfa yüklendiğinde init fonksiyonunu çağır
-window.addEventListener('load', init);
+// Event Listener
+window.addEventListener('load', () => {
+    document.getElementById('connectButton').addEventListener('click', connectWallet);
+});
