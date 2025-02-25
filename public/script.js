@@ -635,6 +635,26 @@ async function setUsername() {
         alert('Kullanıcı adı ayarlanamadı');
     }
 }
+async function initializeConnection() {
+    try {
+        // Wallet bağlantısı
+        await connectWallet();
+
+        // Sözleşme bağlantısı
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        const signer = provider.getSigner();
+        contract = new ethers.Contract(contractAddress, contractABI, signer);
+
+        // Kullanıcı verilerini al
+        const userData = await getUserData();
+        
+        // Bakiyeyi kontrol et
+        await checkBalance();
+
+    } catch (error) {
+        console.error("Bağlantı hatası:", error);
+    }
+}
 
 async function getUserData() {
     try {
@@ -736,7 +756,7 @@ async function loadLeaderboard() {
 async function init() {
     try {
         // Kontrat bağlantısı ve gerekli başlangıç ayarları
-        const contractAddress = 'DEPLOYED_CONTRACT_ADDRESS';
+        const contractAddress = '0x3FACEE0149bC01685815B3f62b8DBC68FbB0E835';
         const contractABI = [
 	{
 		"inputs": [
