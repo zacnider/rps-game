@@ -32,7 +32,7 @@ async function connectWallet() {
             signer = provider.getSigner();
 
             // Sözleşme bağlantısı
-            const contractAddress = "SIZIN_CONTRACT_ADRESI";
+            const contractAddress = "0x3facee0149bc01685815b3f62b8dbc68fbb0e835";
             const contractABI = [ /* Sözleşmenizin ABI'si */ ];
             contract = new ethers.Contract(contractAddress, contractABI, signer);
 
