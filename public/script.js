@@ -3,35 +3,37 @@ let signer;
 let provider;
 
 async function connectWallet() {
-    try {
-        // Metamask kontrolü
-        if (typeof window.ethereum !== 'undefined') {
-            // Provider oluştur
-            provider = new ethers.providers.Web3Provider(window.ethereum);
-            
+     // Metamask varlığını kontrol et
+    if (typeof window.ethereum !== 'undefined') {
+        try {
             // Metamask bağlantı isteği
-            await provider.send("eth_requestAccounts", []);
+            const accounts = await window.ethereum.request({ 
+                method: 'eth_requestAccounts' 
+            });
+
+            // Web3 Provider oluştur
+            const provider = new ethers.providers.Web3Provider(window.ethereum);
             
             // Signer al
             signer = provider.getSigner();
-            
-            // Cüzdan adresini al
+
+            // Sözleşme bağlantısı
+            contract = new ethers.Contract(contractAddress, contractABI, signer);
+
+            // Bağlı hesabı göster
             const address = await signer.getAddress();
-            
-            // Arayüzü güncelle
-            document.getElementById('connectMetamask').style.display = 'none';
-            document.getElementById('walletInfo').classList.remove('hidden');
-            document.getElementById('startGameSection').classList.remove('hidden');
-            document.getElementById('walletAddress').textContent = address;
-            
-            // Bakiye ve diğer bilgileri çek
-            await updateBalances();
-        } else {
-            alert('Metamask yüklü değil!');
+            console.log("Bağlanan Hesap:", address);
+
+            // Kullanıcı arayüzünü güncelle
+            document.getElementById('connectButton').textContent = 
+                `Bağlandı: ${address.slice(0,6)}...${address.slice(-4)}`;
+
+        } catch (error) {
+            console.error("Bağlantı Hatası:", error);
+            alert("Metamask bağlantısı kurulamadı!");
         }
-    } catch (error) {
-        console.error('Wallet Bağlantı Hatası:', error);
-        alert('Bağlantı sırasında bir hata oluştu');
+    } else {
+        alert("Metamask kurulu değil!");
     }
 }
 
@@ -739,5 +741,22 @@ async function init() {
 
 // Sayfa yüklendiğinde init fonksiyonunu çağır
 window.addEventListener('load', () => {
-// Metamask bağlantı kontrolleri
+    if (typeof window.ethereum !== 'undefined') {
+        // Ağ değişikliği dinleyicisi
+        window.ethereum.on('chainChanged', () => {
+            window.location.reload();
+        });
+
+        // Hesap değişikliği dinleyicisi
+        window.ethereum.on('accountsChanged', (accounts) => {
+            if (accounts.length > 0) {
+                connectWallet();
+            }
+        });
+    }
 });
+
+// Manuel bağlantı butonu için
+function initializeConnection() {
+    connectWallet();
+}
