@@ -608,19 +608,14 @@ async function updateBalances() {
     }
 }
 
+
 async function getTokensFromFaucet() {
     try {
-        // Faucet fonksiyonu çağrısı
-        const tx = await contract.claimTokens();
+        const tx = await contract.faucet();
         await tx.wait();
-        
-        // Bakiyeleri güncelle
-        await updateBalances();
-        
-        alert('Token alındı!');
+        console.log("Token alındı");
     } catch (error) {
-        console.error('Faucet Hatası:', error);
-        alert('Token alınamadı');
+        console.error("Faucet hatası:", error);
     }
 }
 
