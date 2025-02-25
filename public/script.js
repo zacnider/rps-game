@@ -576,6 +576,18 @@ async function connectWallet() {
   }
 }
 
+// 2.1. VERİ GÜNCELLEME
+
+async function initializeConnection() {
+  try {
+    await connectWallet();
+    await updateAllData(); // Diğer verileri güncelle
+    document.getElementById("gameSection").style.display = "block";
+  } catch (error) {
+    alert("Bağlantı hatası: " + error.message);
+  }
+}
+
 // 3. VERİ GÜNCELLEME
 async function updateAllData() {
   await Promise.all([
