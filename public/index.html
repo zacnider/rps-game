@@ -5,6 +5,7 @@
     <title>🪨📄✂️ Rock Paper Scissors on Monad</title>
     <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    
 </head>
 <body class="bg-gradient-to-br from-purple-900 to-blue-900 min-h-screen text-white">
     <div class="container mx-auto px-4 py-8 max-w-4xl">
@@ -12,13 +13,12 @@
         <div class="text-center mb-12">
             <h1 class="text-4xl font-bold mb-4">🪨📄✂️ Rock Paper Scissors on Monad</h1>
             <div class="flex justify-center gap-4">
-                <button 
-                    id="connectButton" 
-                    class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg transition-all"
-                    onclick="connectWallet()"
-                >
-                    🔗 Wallet Bağla
-                </button>
+<button 
+    id="connectButton" 
+    class="bg-blue-500 text-white px-4 py-2 rounded"
+>
+    Wallet Bağla
+</button>
             </div>
         </div>
 
@@ -26,82 +26,87 @@
         <div id="walletInfo" class="hidden bg-white/10 rounded-xl p-6 mb-8">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-lg">
                 <p>👛 Wallet: <span id="walletAddress" class="font-mono break-all"></span></p>
-                <p>🪙 RPS Balance: <span id="rps-balance" class="font-bold">0</span></p>
-                <p>🏆 Total Points: <span id="totalPoints" class="font-bold">0</span></p>
+                <p>🪙 MON Balance: <span id="mon-balance" class="font-bold">0</span></p>
+                <p>🎮 RPS Balance: <span id="rps-balance" class="font-bold">0</span></p>
             </div>
+        </div>
+
+        <!-- Oyun Başlatma Butonu -->
+        <div class="text-center mb-8 hidden" id="startGameSection">
+            <button onclick="startGame()" 
+                    class="bg-yellow-500 hover:bg-yellow-600 px-6 py-3 rounded-lg font-bold transition-all">
+                🚀 Start Game
+            </button>
         </div>
 
         <!-- Ana Oyun Alanı -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <!-- Sol Kolon -->
             <div class="space-y-6">
-                <!-- Kullanıcı Profili -->
+                <!-- Faucet -->
+                <div class="bg-white/10 rounded-xl p-6">
+                    <h3 class="text-xl font-bold mb-4">🛒 Free RPS Tokens</h3>
+                    <button id="faucetButton" 
+                            class="w-full bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-lg disabled:opacity-50 transition-all"
+                            onclick="getTokensFromFaucet()">
+                        Claim 100 RPS (24h)
+                    </button>
+                </div>
+
+                <!-- Kullanıcı Adı -->
                 <div class="bg-white/10 rounded-xl p-6">
                     <h3 class="text-xl font-bold mb-4">👤 Player Profile</h3>
-                    <p class="mb-2">Username: <span id="usernameDisplay" class="font-bold">-</span></p>
                     <div class="flex gap-2">
                         <input type="text" 
                                id="usernameInput" 
                                class="flex-1 rounded-lg px-4 py-2 text-black"
-                               placeholder="New username">
+                               placeholder="Enter username">
                         <button onclick="setUsername()" 
-                                class="bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-lg transition-all">
-                            ✏️ Set
+                                class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg transition-all">
+                            Set
                         </button>
                     </div>
                     <p id="usernameError" class="text-red-400 mt-2 hidden"></p>
                 </div>
-
-                <!-- Faucet -->
-                <div class="bg-white/10 rounded-xl p-6">
-                    <h3 class="text-xl font-bold mb-4">🎰 Token Faucet</h3>
-                    <button id="faucetButton" 
-                            class="w-full bg-green-600 hover:bg-green-700 px-4 py-2 rounded-lg disabled:opacity-50 transition-all"
-                            onclick="claimFaucet()">
-                        🚰 Claim 100 RPS (24h)
-                    </button>
-                </div>
             </div>
 
-            <!-- Oyun Alanı -->
+            <!-- Orta Kolon -->
             <div class="lg:col-span-2">
                 <!-- Oyun Kontrolleri -->
                 <div class="bg-white/10 rounded-xl p-6 mb-8">
                     <h3 class="text-xl font-bold mb-6 text-center">🎮 Make Your Move</h3>
                     <div class="grid grid-cols-3 gap-4">
-                        <button data-choice="rock" 
-                                class="choice-btn bg-amber-600 hover:bg-amber-700 p-4 rounded-xl text-4xl transition-transform hover:scale-105">
-                            🪨
+                        <button onclick="playGame(0)" 
+                                class="bg-amber-600 hover:bg-amber-700 p-4 rounded-xl text-4xl transition-transform hover:scale-105">
+                            🗿
                         </button>
-                        <button data-choice="paper" 
-                                class="choice-btn bg-emerald-600 hover:bg-emerald-700 p-4 rounded-xl text-4xl transition-transform hover:scale-105">
+                        <button onclick="playGame(1)" 
+                                class="bg-emerald-600 hover:bg-emerald-700 p-4 rounded-xl text-4xl transition-transform hover:scale-105">
                             📄
                         </button>
-                        <button data-choice="scissors" 
-                                class="choice-btn bg-rose-600 hover:bg-rose-700 p-4 rounded-xl text-4xl transition-transform hover:scale-105">
+                        <button onclick="playGame(2)" 
+                                class="bg-rose-600 hover:bg-rose-700 p-4 rounded-xl text-4xl transition-transform hover:scale-105">
                             ✂️
                         </button>
                     </div>
-                    <div id="gameResult" class="mt-6 text-center text-xl font-semibold">
-                        <div id="resultDisplay" class="animate-pulse"></div>
-                    </div>
+                    <div id="gameResult" class="mt-6 text-center text-xl font-semibold"></div>
                 </div>
 
                 <!-- İstatistikler -->
-                <div class="bg-white/10 rounded-xl p-6">
+                <div class="bg-white/10 rounded-xl p-6 mb-8">
                     <h3 class="text-xl font-bold mb-4">📊 Game Stats</h3>
                     <div class="grid grid-cols-3 gap-4 text-center">
                         <div class="bg-white/5 p-4 rounded-lg">
-                            <p class="text-2xl font-bold" id="winsValue">0</p>
-                            <p class="text-sm opacity-75">Wins</p>
+                            <p class="text-2xl font-bold" id="totalWins">0</p>
+                            <p class="text-sm">Wins</p>
                         </div>
                         <div class="bg-white/5 p-4 rounded-lg">
-                            <p class="text-2xl font-bold" id="lossesValue">0</p>
-                            <p class="text-sm opacity-75">Losses</p>
+                            <p class="text-2xl font-bold" id="totalLosses">0</p>
+                            <p class="text-sm">Losses</p>
                         </div>
                         <div class="bg-white/5 p-4 rounded-lg">
-                            <p class="text-2xl font-bold" id="drawsValue">0</p>
-                            <p class="text-sm opacity-75">Draws</p>
+                            <p class="text-2xl font-bold" id="totalDraws">0</p>
+                            <p class="text-sm">Draws</p>
                         </div>
                     </div>
                 </div>
@@ -111,12 +116,24 @@
         <!-- Liderlik Tablosu -->
         <div class="bg-white/10 rounded-xl p-6 mt-8">
             <h3 class="text-xl font-bold mb-4">🏆 Leaderboard</h3>
-            <div id="leaderboard" class="space-y-2">
-                <!-- Liderlik verileri dinamik olarak eklenecek -->
+            <div id="leaderboardList" class="space-y-3">
+                <!-- Liderlik verileri buraya eklenecek -->
             </div>
         </div>
-    </div>
 
+        <!-- Oyun Nasıl Oynanır -->
+        <div class="bg-white/10 rounded-xl p-6 mt-8">
+            <h3 class="text-xl font-bold mb-4">❓ How to Play</h3>
+            <p>Rock Paper Scissors is a simple game played between two players. Each player chooses one of three options: Rock, Paper, or Scissors. The outcomes are:</p>
+            <ul class="list-disc list-inside mb-4">
+                <li>Rock beats Scissors</li>
+                <li>Paper beats Rock</li>
+                <li>Scissors beats Paper</li>
+                <li>If both players choose the same option, it's a draw</li>
+            </ul>
+            <p>Each win gives you 5 points, each loss deducts 5 points, and a draw gives 0 points. Have fun!</p>
+        </div>
+    </div>
     <script src="script.js"></script>
 </body>
 </html>
