@@ -9,7 +9,7 @@
 </head>
 <body class="bg-gradient-to-br from-purple-900 to-blue-900 min-h-screen text-white">
     <div class="container mx-auto px-4 py-8 max-w-4xl">
-        <!-- Başlık ve Cüzdan Bağlantısı -->
+        <!-- Title and Wallet Connection -->
         <div class="text-center mb-12">
             <h1 class="text-4xl font-bold mb-4">🪨📄✂️ Rock Paper Scissors on Monad</h1>
             <div class="flex justify-center gap-4">
@@ -17,21 +17,21 @@
     id="connectButton" 
     class="bg-blue-500 text-white px-4 py-2 rounded"
 >
-    Wallet Bağla
+    Connect Wallet
 </button>
             </div>
         </div>
 
-        <!-- Cüzdan Bilgileri -->
+        <!-- Wallet Info -->
         <div id="walletInfo" class="hidden bg-white/10 rounded-xl p-6 mb-8">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-lg">
+            <div class="grid grid-cols-1 md-grid-cols-2 gap-4 text-lg">
                 <p>👛 Wallet: <span id="walletAddress" class="font-mono break-all"></span></p>
                 <p>🪙 MON Balance: <span id="mon-balance" class="font-bold">0</span></p>
                 <p>🎮 RPS Balance: <span id="rps-balance" class="font-bold">0</span></p>
             </div>
         </div>
 
-        <!-- Oyun Başlatma Butonu -->
+        <!-- Start Game Button -->
         <div class="text-center mb-8 hidden" id="startGameSection">
             <button onclick="startGame()" 
                     class="bg-yellow-500 hover:bg-yellow-600 px-6 py-3 rounded-lg font-bold transition-all">
@@ -39,9 +39,9 @@
             </button>
         </div>
 
-        <!-- Ana Oyun Alanı -->
+        <!-- Main Game Area -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <!-- Sol Kolon -->
+            <!-- Left Column -->
             <div class="space-y-6">
                 <!-- Faucet -->
                 <div class="bg-white/10 rounded-xl p-6">
@@ -53,7 +53,7 @@
                     </button>
                 </div>
 
-                <!-- Kullanıcı Adı -->
+                <!-- Username -->
                 <div class="bg-white/10 rounded-xl p-6">
                     <h3 class="text-xl font-bold mb-4">👤 Player Profile</h3>
                     <div class="flex gap-2">
@@ -70,9 +70,9 @@
                 </div>
             </div>
 
-            <!-- Orta Kolon -->
+            <!-- Middle Column -->
             <div class="lg:col-span-2">
-                <!-- Oyun Kontrolleri -->
+                <!-- Game Controls -->
                 <div class="bg-white/10 rounded-xl p-6 mb-8">
                     <h3 class="text-xl font-bold mb-6 text-center">🎮 Make Your Move</h3>
                     <div class="grid grid-cols-3 gap-4">
@@ -92,7 +92,7 @@
                     <div id="gameResult" class="mt-6 text-center text-xl font-semibold"></div>
                 </div>
 
-                <!-- İstatistikler -->
+                <!-- Statistics -->
                 <div class="bg-white/10 rounded-xl p-6 mb-8">
                     <h3 class="text-xl font-bold mb-4">📊 Game Stats</h3>
                     <div class="grid grid-cols-3 gap-4 text-center">
@@ -113,15 +113,15 @@
             </div>
         </div>
 
-        <!-- Liderlik Tablosu -->
+        <!-- Leaderboard -->
         <div class="bg-white/10 rounded-xl p-6 mt-8">
             <h3 class="text-xl font-bold mb-4">🏆 Leaderboard</h3>
             <div id="leaderboardList" class="space-y-3">
-                <!-- Liderlik verileri buraya eklenecek -->
+                <!-- Leaderboard data will be added here -->
             </div>
         </div>
 
-        <!-- Oyun Nasıl Oynanır -->
+        <!-- How to Play -->
         <div class="bg-white/10 rounded-xl p-6 mt-8">
             <h3 class="text-xl font-bold mb-4">❓ How to Play</h3>
             <p>Rock Paper Scissors is a simple game played between two players. Each player chooses one of three options: Rock, Paper, or Scissors. The outcomes are:</p>
