@@ -8,8 +8,9 @@ if (typeof ethers === 'undefined') {
 let contract;
 let signer;
 let userAddress;
-const contractAddress = "0x3facee0149bc01685815b3f62b8dbc68fbb0e835";
+const contractAddress = "0xa3dEE60AA4246b3DBb7bc0fD87365669A95c17B3";
 const contractABI = [
+
 	{
 		"inputs": [
 			{
