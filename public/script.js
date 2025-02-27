@@ -738,7 +738,7 @@ async function playGame(playerChoice) {
 
   } catch (error) {
     console.error("Oyun Hatası:", error);
-    document.getElementById("gameResult").textContent = Hata: ${error.reason || error.message};
+    document.getElementById("gameResult").textContent = `Hata: ${error.reason || error.message}`;
   }
 }
 
