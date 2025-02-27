@@ -685,7 +685,7 @@ async function playGame(choice) {
     document.getElementById("gameResult").textContent = "🏆 Kazandınız! +5 Puan";
   } catch (error) {
     console.error("Oyun Hatası:", error);
-    document.getElementById("gameResult").textContent = Hata: ${error.reason || error.message};
+    document.getElementById("gameResult").textContent = `Hata: ${error.reason || error.message}`;
   }
 }
 // 8. OYUN İSTATİSTİKLERİNİ GÜNCELLE (Kontratınıza uygun şekilde düzenleyin)
