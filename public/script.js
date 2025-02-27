@@ -566,7 +566,7 @@ async function connectWallet() {
     contract = new ethers.Contract(contractAddress, contractABI, signer);
     
     // UI Güncellemeleri
-    document.getElementById("connectButton").textContent = ✔ ${userAddress.slice(0,6)}...${userAddress.slice(-4)};
+    document.getElementById("connectButton").textContent = `✔ ${userAddress.slice(0,6)}...${userAddress.slice(-4)}`;
     document.getElementById("walletInfo").classList.remove("hidden");
     document.getElementById("startGameSection").classList.remove("hidden");
     
