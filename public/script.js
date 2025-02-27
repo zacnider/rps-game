@@ -755,18 +755,22 @@ async function loadLeaderboard() {
       .slice(0, 10);
 
     // DOM'u güncelle
-    const leaderboardList = document.getElementById("leaderboardList");
-    leaderboardList.innerHTML = sorted.map((user, index) => 
-      <div class="bg-white/5 p-3 rounded-lg flex justify-between">
-        <span>${index + 1}. ${user.username || "Anonim"}</span>
-        <span>${user.totalPoints} Puan</span>
-      </div>
-    ).join("");
-    
-  } catch (error) {
-    console.error("Liderlik Tablosu Hatası:", error);
-  }
+ try {
+  const leaderboardList = document.getElementById("leaderboardList");
+
+  leaderboardList.innerHTML = sorted.map((user, index) => 
+    `
+    <div class="bg-white/5 p-3 rounded-lg flex justify-between">
+      <span>${index + 1}. ${user.username || "Anonim"}</span>
+      <span>${user.totalPoints} Puan</span>
+    </div>
+    `
+  ).join("");  // Listeyi birleştirir
+
+} catch (error) {
+  console.error("Liderlik Tablosu Hatası:", error);
 }
+
 
 // 11. SAYFA YÜKLENDİĞİNDE
 async function init() {
