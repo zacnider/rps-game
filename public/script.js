@@ -702,7 +702,8 @@ async function handleGameResult(result) {
     displayGameResult(result);
   } catch (error) {
     console.error("Oyun Sonucu İşleme Hatası:", error);
-    document.getElementById("gameResult").textContent = Hata: ${error.reason || error.message};
+    document.getElementById("gameResult").textContent = `Hata: ${error.reason || error.message}`;
+
 
   }
 }
