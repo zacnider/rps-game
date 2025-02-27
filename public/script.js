@@ -573,7 +573,7 @@ async function connectWallet() {
     await updateAllData();
   } catch (error) {
     console.error("Bağlantı Hatası:", error);
-    alert(Hata: ${error.message});
+    alert(`Hata: ${error.message}`);
   }
 }
 
