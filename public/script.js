@@ -640,7 +640,7 @@ async function getTokensFromFaucet() {
     await updateAllData();
   } catch (error) {
     console.error("Faucet Hatası:", error);
-    alert(Hata: ${error.reason || error.message});
+    alert(`Hata: ${error.reason || error.message}`);
   }
 }
 
