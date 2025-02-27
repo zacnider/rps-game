@@ -756,9 +756,9 @@ async function playGame(playerChoice) {
 
 // Buton event listener'ları
 document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('rockButton').addEventListener('click', () => playGame('rock'));
-    document.getElementById('paperButton').addEventListener('click', () => playGame('paper'));
-    document.getElementById('scissorsButton').addEventListener('click', () => playGame('scissors'));
+  document.getElementById('rockButton').addEventListener('click', () => playGame('rock'));
+  document.getElementById('paperButton').addEventListener('click', () => playGame('paper'));
+  document.getElementById('scissorsButton').addEventListener('click', () => playGame('scissors'));
 });
 
 function displayGameResult(result) {
